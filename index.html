@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
+    <title></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>取得したコードの実行</h1>
+    <h1>URLからデータを取得して表示</h1>
+
+    <!-- ユーザーがURLを入力するテキストボックス -->
+    <input type="text" id="urlInput" placeholder="URLを入力してください" style="width: 300px;">
+    <button id="fetchBtn">取得する</button>
+
+    <!-- データの出力場所 -->
     <div id="output"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
