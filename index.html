@@ -3,19 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <link rel="stylesheet" href="styles.css">
+    <title>ファイルを個別にダウンロード</title>
 </head>
 <body>
-    <h1>URLからデータを取得して表示</h1>
+    <h1>URLからファイルを個別にダウンロード</h1>
+    <input type="text" id="fileUrl" placeholder="ファイルのURLを入力してください (カンマ区切り)" style="width: 400px;">
+    <input type="text" id="baseName" placeholder="ダウンロードファイルの名前のベース (拡張子なし)" style="width: 200px;">
+    <button onclick="downloadFiles()">ファイルを個別にダウンロード</button>
 
-    <!-- ユーザーがURLを入力するテキストボックス -->
-    <input type="text" id="urlInput" placeholder="URLを入力してください" style="width: 300px;">
-    <button id="fetchBtn">取得する</button>
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div> <!-- エラーメッセージ表示領域 -->
 
-    <!-- データの出力場所 -->
-    <div id="output"></div>
+    <script>
+        function getExtensionFromContentType(contentType) {
+            switch (contentType) {
+                case 'text/html':
+                    return 'html';
+                case 'application/javascript':
+                    return 'js';
+                case 'text/css':
+                    return 'css';
+                case 'image/png':
+                    return 'png';
+                case 'image/jpeg':
+                    return 'jpg';
+                case 'application/json':
+                    return 'json';
+                case 'text/plain':
+                    return 'txt';
+                case 'audio/mpeg':
+                    return 'mp3';
+                case 'video/mp4':
+                    return 'mp4';
+                case 'application/zip':
+                    return 'zip';
+                default:
+                    return 'unknown'; // 拡張子が不明な場合
+            }
+        }
 
-    <script src="script.js"></script>
+        async function downloadFile(url, baseName) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status} - ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('Content-Type');
+                const extension = getExtensionFromContentType(contentType);
+
+                const blob = await response.blob();
+                const fileName = `${baseName}.${extension}`;
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = `エラー: ${error.message}`;
+                console.error('エラーが発生しました:', error);
+            }
+        }
+
+        async function downloadFiles() {
+            const fileUrls = document.getElementById('fileUrl').value.split(',').map(url => url.trim());
+            const baseName = document.getElementById('baseName').value;
+            const errorMessageDiv = document.getElementById('errorMessage');
+            errorMessageDiv.textContent = ''; // エラーメッセージをクリア
+
+            if (fileUrls.length === 0 || !baseName) {
+                errorMessageDiv.textContent = 'URLとベース名を入力してください';
+                return;
+            }
+
+            for (const [index, fileUrl] of fileUrls.entries()) {
+                await downloadFile(fileUrl, `${baseName}_${index}`);
+            }
+        }
+    </script>
 </body>
 </html>
