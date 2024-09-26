@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download and Zip Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+</head>
+<body>
+    <h1>URLからファイルをダウンロードし、ZIP形式で保存</h1>
+    <input type="text" id="fileUrl" placeholder="ファイルURLを入力">
+    <button onclick="downloadAndZip()">ダウンロードしてZIPに保存</button>
+
+    <script>
+        async function downloadAndZip() {
+            const fileUrl = document.getElementById('fileUrl').value;
+            if (!fileUrl) {
+                alert('URLを入力してください');
+                return;
+            }
+
+            try {
+                // ファイルを取得
+                const response = await fetch(fileUrl);
+                const blob = await response.blob();
+                const fileName = fileUrl.split('/').pop();
+
+                // ZIPファイルの作成
+                const zip = new JSZip();
+                zip.file(fileName, blob);
+
+                // ZIPファイルを生成してダウンロード
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                const zipUrl = URL.createObjectURL(zipBlob);
+                const link = document.createElement('a');
+                link.href = zipUrl;
+                link.download = 'files.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('ファイルのダウンロード中にエラーが発生しました:', error);
+                alert('ファイルのダウンロードに失敗しました');
+            }
+        }
+    </script>
+</body>
+</html>
