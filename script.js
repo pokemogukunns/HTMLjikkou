@@ -1,31 +1,27 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // ボタンがクリックされたときにデータを取得
     document.getElementById("fetchBtn").addEventListener("click", function() {
-        // ユーザーが入力したURLを取得
         const url = document.getElementById("urlInput").value;
 
-        // URLが入力されているかチェック
         if (url) {
-            // Fetch APIを使用してデータを取得
-            fetch(url)
+            // CORSプロキシを使ってリクエストを送信
+            const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+            const targetUrl = proxyUrl + url;
+
+            fetch(targetUrl)
                 .then(response => {
-                    // レスポンスがテキストであることを確認
                     if (response.ok) {
-                        return response.text();
+                        return response.text(); // テキストデータを取得
                     } else {
                         throw new Error("データの取得に失敗しました");
                     }
                 })
                 .then(data => {
-                    // データをHTML要素に表示
-                    document.getElementById("output").innerText = data;
+                    document.getElementById("output").innerText = data; // 取得したデータを表示
                 })
                 .catch(error => {
-                    // エラーメッセージを表示
                     document.getElementById("output").innerText = `エラー: ${error.message}`;
                 });
         } else {
-            // URLが空の場合のエラーメッセージ
             document.getElementById("output").innerText = "URLを入力してください";
         }
     });
