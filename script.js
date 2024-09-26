@@ -1,28 +1,50 @@
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("fetchBtn").addEventListener("click", function() {
-        const url = document.getElementById("urlInput").value;
-
-        if (url) {
-            // CORSプロキシを使ってリクエストを送信
-            const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-            const targetUrl = proxyUrl + url;
-
-            fetch(targetUrl)
-                .then(response => {
-                    if (response.ok) {
-                        return response.text(); // テキストデータを取得
-                    } else {
-                        throw new Error("データの取得に失敗しました");
-                    }
-                })
-                .then(data => {
-                    document.getElementById("output").innerText = data; // 取得したデータを表示
-                })
-                .catch(error => {
-                    document.getElementById("output").innerText = `エラー: ${error.message}`;
-                });
-        } else {
-            document.getElementById("output").innerText = "URLを入力してください";
+async function fetchAndEmbedExternalResources(url) {
+    try {
+        // HTMLファイルの取得
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTPエラー: ${response.status} - ${response.statusText}`);
         }
-    });
-});
+
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        // CSSファイルの読み込みと<Style>タグに変換
+        const styleTags = doc.querySelectorAll('link[rel="stylesheet"]');
+        for (let tag of styleTags) {
+            const cssUrl = tag.href;
+            const cssResponse = await fetch(cssUrl);
+            const cssText = await cssResponse.text();
+            const styleElement = document.createElement('style');
+            styleElement.textContent = cssText;
+            document.head.appendChild(styleElement);
+
+            // 元の<link>タグを削除
+            tag.remove();
+        }
+
+        // JSファイルの読み込みと<Script>タグに変換
+        const scriptTags = doc.querySelectorAll('script[src]');
+        for (let tag of scriptTags) {
+            const jsUrl = tag.src;
+            const jsResponse = await fetch(jsUrl);
+            const jsText = await jsResponse.text();
+            const scriptElement = document.createElement('script');
+            scriptElement.textContent = jsText;
+            document.body.appendChild(scriptElement);
+
+            // 元の<script>タグを削除
+            tag.remove();
+        }
+
+        // 最終的なHTMLコンテンツの出力
+        console.log(doc.documentElement.outerHTML);
+
+    } catch (error) {
+        console.error('エラーが発生しました:', error);
+    }
+}
+
+// 使用例
+//fetchAndEmbedExternalResources('https://yuki-math-blog-43t5.onrender.com/');
