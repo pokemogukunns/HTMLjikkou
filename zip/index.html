@@ -3,43 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download and Zip Example</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <title>ファイルダウンロード</title>
 </head>
 <body>
-    <h1>URLからファイルをダウンロードし、ZIP形式で保存</h1>
-    <input type="text" id="fileUrl" placeholder="ファイルURLを入力">
-    <button onclick="downloadAndZip()">ダウンロードしてZIPに保存</button>
+    <h1>URLからファイルをダウンロードして保存</h1>
+    <input type="text" id="fileUrl" placeholder="ファイルのURLを入力してください" style="width: 400px;">
+    <input type="text" id="name" placeholder="ファイル名（拡張子なし）" style="width: 200px;">
+    <button onclick="downloadFile()">ダウンロード</button>
 
     <script>
-        async function downloadAndZip() {
+        function getExtensionFromUrl(url) {
+            const fileName = url.split('/').pop();
+            const extension = fileName.split('.').pop().toLowerCase();
+            return extension;
+        }
+
+        function getFormattedFileName(baseName, extension) {
+            switch (extension) {
+                case 'html':
+                case 'htm':
+                    return `${baseName}.html`;
+                case 'js':
+                    return `${baseName}.js`;
+                case 'css':
+                    return `${baseName}.css`;
+                case 'png':
+                    return `${baseName}.png`;
+                case 'jpg':
+                case 'jpeg':
+                    return `${baseName}.jpg`;
+                case 'mp3':
+                    return `${baseName}.mp3`;
+                case 'mp4':
+                    return `${baseName}.mp4`;
+                case 'txt':
+                    return `${baseName}.txt`;
+                case 'py':
+                    return `${baseName}.py`;
+                default:
+                    return `${baseName}.${extension}`;
+            }
+        }
+
+        async function downloadFile() {
             const fileUrl = document.getElementById('fileUrl').value;
-            if (!fileUrl) {
-                alert('URLを入力してください');
+            const baseName = document.getElementById('name').value;
+
+            if (!fileUrl || !baseName) {
+                alert('URLとファイル名を入力してください');
                 return;
             }
 
             try {
-                // ファイルを取得
                 const response = await fetch(fileUrl);
                 const blob = await response.blob();
-                const fileName = fileUrl.split('/').pop();
 
-                // ZIPファイルの作成
-                const zip = new JSZip();
-                zip.file(fileName, blob);
+                const extension = getExtensionFromUrl(fileUrl);
+                const formattedFileName = getFormattedFileName(baseName, extension);
 
-                // ZIPファイルを生成してダウンロード
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-                const zipUrl = URL.createObjectURL(zipBlob);
                 const link = document.createElement('a');
-                link.href = zipUrl;
-                link.download = 'files.zip';
+                link.href = URL.createObjectURL(blob);
+                link.download = formattedFileName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+
+                alert(`${formattedFileName} に保存されました`);
             } catch (error) {
-                console.error('ファイルのダウンロード中にエラーが発生しました:', error);
+                console.error('ファイルのダウンロードに失敗しました:', error);
                 alert('ファイルのダウンロードに失敗しました');
             }
         }
