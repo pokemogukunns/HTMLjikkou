@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // URLからデータを取得する例
-    const url = "指定されたURL"; // ここに指定されたURLを入力してください
+    const url = "https://yuki-math-blog-bymy.onrender.com/"; // ここに指定されたURLを入力してください
 
     fetch(url)
         .then(response => response.text())
