@@ -10,5 +10,5 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => console.error('Error:', error));
 
     // クッキーの変更
-    document.cookie = "username=ユーザー名; path=/"; // 例
+    document.cookie = "yuki; path=/"; // 例
 });
