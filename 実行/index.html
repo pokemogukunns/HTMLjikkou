@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML実行サイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML実行サイト</h1>
+    <p>下のテキストエリアにHTMLコードを入力し、「実行」ボタンをクリックしてください。</p>
+
+    <textarea id="htmlInput" placeholder="ここにHTMLコードを入力してください"></textarea>
+    <button onclick="runHTML()">実行</button>
+
+    <h2>実行結果</h2>
+    <iframe id="resultFrame"></iframe>
+
+    <script>
+        function runHTML() {
+            const htmlCode = document.getElementById('htmlInput').value;
+            const resultFrame = document.getElementById('resultFrame');
+
+            // iframeのdocumentを取得し、入力されたHTMLを実行
+            const frameDoc = resultFrame.contentDocument || resultFrame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(htmlCode);
+            frameDoc.close();
+        }
+    </script>
+</body>
+</html>
