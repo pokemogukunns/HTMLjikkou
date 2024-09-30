@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URLからソースコード取得</title>
+</head>
+<body>
+    <h1>ソースコードビューア</h1>
+    <p>URLを入力し、そのページのソースコードを表示します。</p>
+
+    <input type="text" id="urlInput" placeholder="URLを入力してください" style="width: 300px;">
+    <button onclick="fetchSource()">ソースコードを表示</button>
+
+    <script>
+        function fetchSource() {
+            const url = document.getElementById('urlInput').value;
+
+            if (!url) {
+                alert("URLを入力してください");
+                return;
+            }
+
+            // fetch APIを使用してURLのソースコードを取得
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("ネットワークの応答が不正です");
+                }
+                return response.text(); // テキストとしてソースコードを取得
+            })
+            .then(html => {
+                // 新しいタブを開いてソースコードを表示
+                var a = window.open('about:blank').document;
+                a.write('<!DOCTYPE html><html><head><title>ViewSource:' + url + '</title><meta name="viewport" content="width=device-width,initial-scale=1" /></head><body></body></html>');
+                a.close();
+
+                // Prettifyのスクリプトを読み込む
+                var s = a.createElement("script");
+                s.src = "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=sons-of-obsidian";
+                a.body.appendChild(s);
+
+                // ソースコードを表示する<pre>要素を作成
+                var b = a.body.appendChild(a.createElement('pre'));
+                b.className = 'prettyprint lang-html linenums';
+                b.style.overflow = 'auto';
+                b.style.whiteSpace = 'pre-wrap';
+                b.style.wordBreak = 'break-all';
+                b.style.fontSize = '11px';
+                b.appendChild(a.createTextNode(html));
+            })
+            .catch(error => {
+                alert("ソースコードを取得できませんでした: " + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
